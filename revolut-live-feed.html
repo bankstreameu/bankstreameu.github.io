@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>How to use Muse AI with your Revolut — live balances in chat | Bankstream</title>
+<meta name="description" content="Learn how to use Muse AI with your Revolut: a read-only connector that brings live Revolut balances and transactions into Muse AI across Europe — where Plaid and Buxfer can't. DIY kit €29 Black Friday early bird, done-for-you setup, multi-bank pack." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#fbfbf9;
+    --surface:#ffffff;
+    --surface-2:#f2f3ef;
+    --ink:#101613;
+    --ink-2:#3d4741;
+    --muted:#6b7670;
+    --line:#dde2dc;
+    --accent:#0b7a55;
+    --accent-ink:#ffffff;
+    --accent-soft:#e3f2ec;
+    --dark:#0d1512;
+    --dark-2:#16211c;
+    --warn-bg:#fdf3e3;
+    --warn-ink:#7a5410;
+    --radius:14px;
+    --mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans:"IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0c100e;
+      --surface:#131916;
+      --surface-2:#1a221e;
+      --ink:#eef2ee;
+      --ink-2:#c3ccc6;
+      --muted:#93a198;
+      --line:#2a352f;
+      --accent:#2fbd8a;
+      --accent-ink:#06110c;
+      --accent-soft:#173528;
+      --dark:#eef2ee;
+      --dark-2:#d9e2db;
+      --warn-bg:#2b2110;
+      --warn-ink:#e8c37a;
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent)}
+  button,[role="button"],select,summary,input:not([type="checkbox"],[type="radio"]){min-height:2.25rem}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+  .mono{font-family:var(--mono)}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:56px 0 48px;border-bottom:1px solid var(--line)}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+  .kicker{font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 14px}
+  h1{font-size:clamp(2rem,5.2vw,3.35rem);line-height:1.06;letter-spacing:-.02em;margin:0 0 18px;font-weight:700}
+  h1 .u{box-shadow:inset 0 -0.32em 0 var(--accent-soft)}
+  .lede{font-size:1.13rem;color:var(--ink-2);margin:0 0 26px;max-width:34rem}
+  .cta-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:22px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 22px;border-radius:10px;font-weight:600;font-size:1rem;text-decoration:none;border:1px solid transparent;cursor:pointer;font-family:var(--sans)}
+  .btn-primary{background:var(--ink);color:var(--bg)}
+  .btn-primary:hover{opacity:.88}
+  .btn-ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+  .btn-ghost:hover{border-color:var(--muted)}
+  .btn-accent{background:var(--accent);color:var(--accent-ink)}
+  .btn-accent:hover{opacity:.9}
+  .hero-notes{display:flex;flex-wrap:wrap;gap:8px 20px;color:var(--muted);font-size:.9rem;margin:0;padding:0;list-style:none}
+  .hero-notes li{display:flex;gap:7px;align-items:center}
+  .tick{color:var(--accent);font-weight:700}
+
+  /* Feed mock */
+  .feed{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 18px 44px rgba(16,22,19,.10)}
+  .feed-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+  .feed-head .t{font-weight:600;font-size:.95rem}
+  .live-dot{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .live-dot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  @media (prefers-reduced-motion: reduce){.live-dot::before{animation:none}html{scroll-behavior:auto}}
+  .feed-tabs{display:flex;gap:6px;padding:10px 14px 0}
+  .feed-tab{border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);border-radius:999px;padding:6px 14px;font-family:var(--sans);font-size:.88rem;font-weight:600;cursor:pointer;min-height:36px}
+  .feed-tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .feed-body{padding:16px 18px 18px}
+  .acct{display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line)}
+  .acct:last-child{border-bottom:none}
+  .acct .name{font-weight:500}
+  .acct .sub{display:block;font-size:.82rem;color:var(--muted);font-weight:400}
+  .acct .bal{font-family:var(--mono);font-weight:600;font-size:1.02rem;white-space:nowrap}
+  .txn{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.95rem}
+  .txn:last-child{border-bottom:none}
+  .txn .d{color:var(--muted);font-size:.82rem;display:block}
+  .txn .amt{font-family:var(--mono);font-weight:600;white-space:nowrap}
+  .amt.neg{color:var(--ink-2)} .amt.pos{color:var(--accent)}
+  .feed-foot{padding:11px 18px;background:var(--surface-2);font-size:.8rem;color:var(--muted);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+
+  /* ---------- Sections ---------- */
+  section{padding:56px 0}
+  section + section{border-top:1px solid var(--line)}
+  h2{font-size:clamp(1.5rem,3.4vw,2.1rem);letter-spacing:-.015em;line-height:1.15;margin:0 0 12px}
+  .section-lede{color:var(--ink-2);max-width:42rem;margin:0 0 32px;font-size:1.05rem}
+
+  /* Comparison */
+  .compare{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .cmp{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  .cmp.win{border-color:var(--accent);border-width:2px}
+  .cmp h3{margin:0 0 6px;font-size:1.05rem}
+  .cmp .tag{font-family:var(--mono);font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+  .cmp.win .tag{color:var(--accent)}
+  .cmp ul{margin:0;padding:0;list-style:none;display:grid;gap:9px;font-size:.95rem;color:var(--ink-2)}
+  .cmp li{display:flex;gap:9px}
+  .cmp .x{color:#b3402e;font-weight:700;flex:none}
+  .cmp .c{color:var(--accent);font-weight:700;flex:none}
+  @media (prefers-color-scheme: dark){.cmp .x{color:#e07a63}}
+
+  /* Steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;counter-reset:step}
+  .step{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  .step .n{font-family:var(--mono);font-size:.8rem;font-weight:600;color:var(--accent);background:var(--accent-soft);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+  .step h3{margin:0 0 8px;font-size:1.05rem}
+  .step p{margin:0;color:var(--ink-2);font-size:.96rem}
+
+  /* In the box */
+  .box-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 40px;max-width:900px}
+  .box-item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .box-item .ic{flex:none;width:40px;height:40px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center}
+  .box-item h3{margin:0 0 4px;font-size:1rem}
+  .box-item p{margin:0;color:var(--ink-2);font-size:.94rem}
+
+  /* Security band */
+  .band{background:var(--dark);color:var(--bg);border-radius:20px;padding:36px}
+  .band h2{color:var(--bg)}
+  .band p{color:inherit;opacity:.85;max-width:44rem}
+  .band-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:26px}
+  .band-grid h3{margin:0 0 6px;font-size:1rem;color:var(--bg)}
+  .band-grid p{margin:0;font-size:.93rem}
+
+  /* Pricing */
+  .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:stretch}
+  .plan{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px;display:flex;flex-direction:column}
+  .plan.pop{border:2px solid var(--accent);position:relative}
+  .pop-badge{position:absolute;top:-13px;left:22px;background:var(--accent);color:var(--accent-ink);font-size:.74rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 11px;border-radius:999px}
+  .plan h3{margin:0 0 4px;font-size:1.12rem}
+  .plan .who{color:var(--muted);font-size:.9rem;margin:0 0 18px}
+  .price{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+  .price .now{font-family:var(--mono);font-size:2.1rem;font-weight:600;letter-spacing:-.02em}
+  .price .was{font-family:var(--mono);color:var(--muted);text-decoration:line-through}
+  .once{font-size:.85rem;color:var(--muted);margin:0 0 8px}
+  .vat{font-family:var(--mono);font-size:.8rem;line-height:1.55;color:var(--ink-2);background:var(--surface-2);border-radius:8px;padding:8px 10px;margin:0 0 16px}
+  .vat strong{color:var(--ink)}
+  .care-vat{font-family:var(--mono);font-size:.8rem;color:var(--ink-2);display:block;margin-top:4px}
+  .summary .vat-line{display:block;font-family:var(--mono);font-size:.82rem;margin-top:4px}
+  .plan ul{margin:0 0 24px;padding:0;list-style:none;display:grid;gap:9px;font-size:.94rem;color:var(--ink-2);flex:1}
+  .plan li{display:flex;gap:9px}
+  .plan .btn{width:100%}
+  .care{margin-top:16px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;display:flex;flex-wrap:wrap;gap:10px 28px;align-items:center;justify-content:space-between}
+  .care strong{font-size:1rem}
+  .care p{margin:2px 0 0;color:var(--ink-2);font-size:.92rem;max-width:36rem}
+  .care .amt{font-family:var(--mono);font-weight:600;font-size:1.15rem;white-space:nowrap}
+
+  /* Order builder */
+  .builder{margin-top:28px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px}
+  .builder h3{margin:0 0 6px;font-size:1.15rem}
+  .builder > p{color:var(--ink-2);margin:0 0 18px;font-size:.96rem;max-width:40rem}
+  .pick-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+  .pick{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:10px 16px;font-family:var(--sans);font-weight:600;font-size:.95rem;cursor:pointer;min-height:44px}
+  .pick[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .summary{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;background:var(--surface-2);border-radius:12px;padding:16px 18px;margin-top:6px}
+  .summary .line{font-size:.95rem;color:var(--ink-2)}
+  .summary .total{font-family:var(--mono);font-size:1.35rem;font-weight:600;color:var(--ink)}
+
+  /* FAQ */
+  .faq{max-width:820px}
+  details{border-bottom:1px solid var(--line)}
+  details:first-of-type{border-top:1px solid var(--line)}
+  summary{cursor:pointer;font-weight:600;padding:17px 4px;min-height:48px;display:flex;align-items:center;list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";margin-left:auto;font-family:var(--mono);color:var(--accent);font-size:1.2rem;padding-left:16px}
+  details[open ] summary::after{content:"–"}
+  details p{margin:0 4px 18px;color:var(--ink-2);max-width:44rem}
+
+  .note{background:var(--warn-bg);color:var(--warn-ink);border-radius:var(--radius);padding:16px 20px;font-size:.93rem;margin-top:28px;max-width:820px}
+  .note strong{color:inherit}
+
+  footer{border-top:1px solid var(--line);padding:34px 0 44px;color:var(--muted);font-size:.88rem}
+  footer p{margin:0 0 8px;max-width:52rem}
+
+  @media (max-width:860px){
+    .hero{padding:38px 0 36px}
+    .hero-grid{grid-template-columns:1fr;gap:32px}
+    .compare,.steps,.plans,.band-grid{grid-template-columns:1fr}
+    .box-grid{grid-template-columns:1fr}
+    section{padding:42px 0}
+    .band{padding:26px 20px}
+    .plan.pop{margin-top:10px}
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="kicker">For Muse AI users across Europe</p>
+      <h1>Your Revolut, <span class="u">live inside Muse AI</span>. No more statement uploads.</h1>
+      <p class="lede"><strong>No coding experience needed.</strong> Download the kit, tell Muse AI where it is, and Muse AI does the setup for you — it pulls your real Revolut balances and transactions straight into Muse AI, so your AI works from today's numbers, not last month's PDF. Built for Revolut across the EU and EEA, read-only.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#pricing">See pricing</a>
+        <a class="btn btn-ghost" href="#how">How it works</a>
+      </div>
+      <ul class="hero-notes">
+        <li><span class="tick">✓</span> No coding needed — your Muse does the setup</li>
+        <li><span class="tick">✓</span> Read-only — it can never move money</li>
+        <li><span class="tick">✓</span> Just two approvals, both in your own apps</li>
+        <li><span class="tick">✓</span> €0 ongoing platform cost</li>
+        <li><span class="tick">✓</span> EU &amp; EEA coverage</li>
+      </ul>
+      <p style="margin:14px 0 0;color:var(--muted);font-size:.9rem;max-width:34rem"><strong style="color:var(--ink-2)">Coverage:</strong> Revolut accounts in the EU &amp; EEA via PSD2 open banking.</p>
+    </div>
+
+    <div class="feed" aria-label="Illustrative example of the live feed">
+      <div class="feed-head">
+        <span class="t">Revolut — Live Feed</span>
+        <span class="live-dot">Live</span>
+      </div>
+      <div class="feed-tabs" role="tablist" aria-label="Feed view">
+        <button class="feed-tab" role="tab" aria-selected="true" data-view="accounts" type="button">Accounts</button>
+        <button class="feed-tab" role="tab" aria-selected="false" data-view="txns" type="button">Transactions</button>
+      </div>
+      <div class="feed-body">
+        <div id="view-accounts">
+          <div class="acct"><span class="name">Main<span class="sub">Everyday account · EUR</span></span><span class="bal">€1,284.60</span></div>
+          <div class="acct"><span class="name">Pro<span class="sub">Spending pot · 1% cashback</span></span><span class="bal">€342.18</span></div>
+          <div class="acct"><span class="name">Savings Vault<span class="sub">EUR</span></span><span class="bal">€5,010.00</span></div>
+          <div class="acct"><span class="name">GBP Account<span class="sub">GBP</span></span><span class="bal">£96.44</span></div>
+        </div>
+        <div id="view-txns" hidden>
+          <div class="txn"><span>Salary — employer payroll<span class="d">Today · Main</span></span><span class="amt pos">+€2,694.53</span></div>
+          <div class="txn"><span>Grocery delivery<span class="d">Yesterday · Pro</span></span><span class="amt neg">−€86.20</span></div>
+          <div class="txn"><span>Electricity bill<span class="d">Yesterday · Main</span></span><span class="amt neg">−€224.52</span></div>
+          <div class="txn"><span>To Savings Vault<span class="d">2 days ago · Main → Vault</span></span><span class="amt neg">−€500.00</span></div>
+          <div class="txn"><span>Cashback — Pro<span class="d">2 days ago · Pro</span></span><span class="amt pos">+€3.42</span></div>
+        </div>
+      </div>
+      <div class="feed-foot"><span>Illustrative example figures</span><span>Via Enable Banking · read-only</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <h2>How it works — no coding needed</h2>
+    <p class="section-lede">If you can download a file and talk to Muse AI, you can do this. You don't set anything technical up yourself — Muse AI does the heavy lifting and walks you through the rest, in plain language. The same three steps apply across the EU and EEA.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="n">1</div>
+        <h3>Download the kit</h3>
+        <p>After checkout, the kit arrives by email. Download it to your computer, just like any other file — there's nothing to install or code yourself.</p>
+      </div>
+      <div class="step">
+        <div class="n">2</div>
+        <h3>Tell your Muse where it is</h3>
+        <p>Open Muse and say where you saved the kit, then ask it to walk you through the setup. Muse opens the kit, follows the guide inside it, and does the technical steps for you.</p>
+      </div>
+      <div class="step">
+        <div class="n">3</div>
+        <h3>Muse AI does the heavy lifting — you approve two things</h3>
+        <p>You approve just two things yourself, because they're yours and only you should do them: creating your own free Enable Banking account, and approving access in your own Revolut app on your phone. Muse never sees your bank password or private key. Then ask Muse for your balances — live figures, in the conversation, whenever you need them.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE GAP -->
+<section>
+  <div class="wrap">
+    <h2>The gap it fills</h2>
+    <p class="section-lede">Across Europe, the usual routes to live bank data in your AI simply don't reach Revolut. This connector was built — and is in daily use across Europe — precisely because of that.</p>
+    <div class="compare">
+      <div class="cmp">
+        <h3>Statement uploads</h3>
+        <p class="tag">The manual way</p>
+        <ul>
+          <li><span class="x">✕</span> Stale the moment you download them</li>
+          <li><span class="x">✕</span> Re-upload every time you want fresh numbers</li>
+          <li><span class="x">✕</span> Easy to miss accounts, pockets and vaults</li>
+        </ul>
+      </div>
+      <div class="cmp">
+        <h3>Plaid &amp; Buxfer</h3>
+        <p class="tag">The usual aggregators</p>
+        <ul>
+          <li><span class="x">✕</span> Plaid doesn't cover Revolut across much of Europe</li>
+          <li><span class="x">✕</span> Buxfer has patchy coverage across Europe</li>
+          <li><span class="x">✕</span> Another subscription for partial coverage</li>
+        </ul>
+      </div>
+      <div class="cmp win">
+        <h3>Revolut Live Feed</h3>
+        <p class="tag">This connector</p>
+        <ul>
+          <li><span class="c">✓</span> Live balances &amp; transactions, pulled on demand</li>
+          <li><span class="c">✓</span> Every account — Main, Pro, vaults and currencies</li>
+          <li><span class="c">✓</span> Built for Revolut across Europe, via licensed EU open banking</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IN THE BOX -->
+<section>
+  <div class="wrap">
+    <h2>What's in the box</h2>
+    <p class="section-lede">Everything in the kit is the exact setup in daily use across Europe — written in plain language, with anything personal removed. You don't work through it yourself: you hand it to your Muse, and Muse follows it for you. The same kit sets up Revolut across Europe, and the Multi-Bank Pack extends it to other European banks.</p>
+    <div class="box-grid">
+      <div class="box-item">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+        <div><h3>The connector Muse AI sets up for you</h3><p>The bit that brings your balances and transactions into Muse, across all your Revolut accounts. Muse puts it in place — you don't touch any code.</p></div>
+      </div>
+      <div class="box-item">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <div><h3>Step-by-step setup guide</h3><p>The plain-language guide Muse follows with you: your free Enable Banking account, approving access on your phone, and seeing your first live balances — in order, with the pitfalls marked.</p></div>
+      </div>
+      <div class="box-item">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <div><h3>Ready-made settings</h3><p>The settings Muse needs, already filled in as far as possible — Muse adds your details during setup, and there's nothing of anyone else's inside.</p></div>
+      </div>
+      <div class="box-item">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+        <div><h3>The playbook</h3><p>Simple things to ask Muse once the feed is live: daily balance checks, a check before big payments, and matching bills against due dates.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY -->
+<section>
+  <div class="wrap">
+    <div class="band">
+      <h2>Read-only, by design</h2>
+      <p>This is a window, not a set of keys to your money. The connector can look — it cannot pay, transfer, or change anything.</p>
+      <div class="band-grid">
+        <div>
+          <h3>No payments, ever</h3>
+          <p>Open-banking consent here is account-information only. There is no payment permission to grant, even by accident.</p>
+        </div>
+        <div>
+          <h3>Your credentials stay yours</h3>
+          <p>Your Enable Banking account and your private key are created by you, for you, and stay with you. Muse never sees your bank password or private key, nothing routes through us, and we never see your bank data.</p>
+        </div>
+        <div>
+          <h3>Revoke in one tap</h3>
+          <p>Withdraw consent in the Revolut app whenever you like and the feed stops. You're never locked in.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="wrap">
+    <h2>Pricing</h2>
+    <p class="section-lede">One-off prices, the same across Europe. All prices shown are the final totals and include 23% VAT — the breakdown under each price shows the ex-VAT price plus 23% VAT. You pay nothing ongoing for the feed itself — each buyer uses their own free Enable Banking account, so the price is for the kit and the time it saves you, not API access. And every pack is no-coding: your Muse does the setup.</p>
+
+    <div class="plans">
+      <div class="plan">
+        <h3>DIY Kit</h3>
+        <p class="who">Download it, hand it to your Muse, and let Muse set it up</p>
+        <div class="price"><span class="now" data-price="diy">€29</span><span class="was">€79</span></div>
+        <p class="once">Black Friday early bird sale · one-off · inc. VAT</p>
+        <p class="vat">Black Friday early bird: <strong>€23.58 + €5.42 VAT (23%) = €29.00</strong><br>List price: €64.23 + €14.77 VAT (23%) = €79.00</p>
+        <ul>
+          <li><span class="tick">✓</span> <strong>No coding needed — your Muse does the setup</strong></li>
+          <li><span class="tick">✓</span> Everything Muse needs to set it up for you</li>
+          <li><span class="tick">✓</span> Full step-by-step setup guide</li>
+          <li><span class="tick">✓</span> Narrated step-by-step video guide (about 1 minute) included in the pack</li>
+          <li><span class="tick">✓</span> The Muse playbook</li>
+          <li><span class="tick">✓</span> Email support for setup questions</li>
+        </ul>
+        <a class="btn btn-ghost plan-cta" data-plan="DIY Kit — €29 (Black Friday early bird sale)" href="https://buy.stripe.com/8x228saL95Yi7hlbIGcwg04">Get the kit</a>
+        <p class="once" style="margin:10px 0 0">Black Friday early bird sale — €50 off the €79 list price, already applied at checkout.</p>
+      </div>
+
+      <div class="plan pop">
+        <span class="pop-badge">Most popular</span>
+        <h3>Done-For-You Setup</h3>
+        <p class="who">We set it up with you, live</p>
+        <div class="price"><span class="now" data-price="dfy">€199</span></div>
+        <p class="once">One-off · includes the full kit · inc. VAT</p>
+        <p class="vat"><strong>€161.79 + €37.21 VAT (23%) = €199.00</strong></p>
+        <ul>
+          <li><span class="tick">✓</span> <strong>No coding needed — your Muse does the setup</strong></li>
+          <li><span class="tick">✓</span> Everything in the DIY Kit</li>
+          <li><span class="tick">✓</span> Narrated step-by-step video guide (about 1 minute) included in the pack</li>
+          <li><span class="tick">✓</span> Guided setup session — your account and phone approval done together</li>
+          <li><span class="tick">✓</span> First live balances checked together in your Muse</li>
+          <li><span class="tick">✓</span> Daily balance checks set up for you</li>
+        </ul>
+        <a class="btn btn-accent plan-cta" data-plan="Done-For-You Setup — €199" href="https://buy.stripe.com/bJeeVecTh86qbxB286cwg03">Book my setup</a>
+      </div>
+
+      <div class="plan">
+        <h3>Multi-Bank Pack</h3>
+        <p class="who">Revolut plus your other European banks</p>
+        <div class="price"><span class="now" data-price="multi">€349</span></div>
+        <p class="once">One-off · includes done-for-you setup · inc. VAT</p>
+        <p class="vat"><strong>€283.74 + €65.26 VAT (23%) = €349.00</strong></p>
+        <ul>
+          <li><span class="tick">✓</span> <strong>No coding needed — your Muse does the setup</strong></li>
+          <li><span class="tick">✓</span> Everything in Done-For-You</li>
+          <li><span class="tick">✓</span> Narrated step-by-step video guide (about 1 minute) included in the pack</li>
+          <li><span class="tick">✓</span> Set up for your other European banks too, where Enable Banking supports them — coverage checked per bank</li>
+          <li><span class="tick">✓</span> One combined view across accounts</li>
+          <li><span class="tick">✓</span> Priority support for 30 days</li>
+        </ul>
+        <a class="btn btn-ghost plan-cta" data-plan="Multi-Bank Pack — €349" href="https://buy.stripe.com/8x2aEY06vcmG7hl8wucwg00">Go multi-bank</a>
+      </div>
+    </div>
+
+    <div class="care">
+      <div>
+        <strong>Optional Care Plan</strong>
+        <p>Updates when Enable Banking or Revolut changes something, plus help renewing your approval when it expires. Cancel any time.</p>
+      </div>
+      <span class="amt">€12 / month<span class="care-vat">€9.76 + €2.24 VAT (23%) = €12.00/month inc. VAT</span></span>
+      <a class="btn btn-ghost" href="https://buy.stripe.com/8x2bJ2f1pcmG59d142cwg01">Subscribe</a>
+    </div>
+
+    <div class="builder" aria-label="Build your order">
+      <h3>Build your order</h3>
+      <p>Pick a package, add the care plan if you want it, and check out securely with Stripe. Questions before you buy? Email <a href="mailto:info@bankstream.eu">info@bankstream.eu</a>.</p>
+      <div class="pick-row" role="group" aria-label="Choose a package">
+        <button type="button" class="pick" data-pick="diy" aria-pressed="true">DIY Kit · €29</button>
+        <button type="button" class="pick" data-pick="dfy" aria-pressed="false">Done-For-You · €199</button>
+        <button type="button" class="pick" data-pick="multi" aria-pressed="false">Multi-Bank · €349</button>
+      </div>
+      <div class="pick-row" role="group" aria-label="Care plan">
+        <button type="button" class="pick" id="care-toggle" aria-pressed="false">Add Care Plan · €12/mo</button>
+      </div>
+      <div class="summary">
+        <span class="line" id="summary-line">DIY Kit — €29.00 due today (inc. VAT)<span class="vat-line">€23.58 + €5.42 VAT (23%) = €29.00</span></span>
+        <span class="total" id="summary-total">€29</span>
+        <a class="btn btn-primary" id="summary-cta" href="https://buy.stripe.com/8x228saL95Yi7hlbIGcwg04">Buy now</a>
+        <a class="btn btn-ghost" id="care-cta" href="https://buy.stripe.com/8x2bJ2f1pcmG59d142cwg01" hidden>Subscribe to Care Plan — €12/mo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section>
+  <div class="wrap">
+    <h2>Questions</h2>
+    <p class="section-lede">The things everyone asks before buying.</p>
+    <div class="faq">
+      <details>
+        <summary>Do I need coding experience?</summary>
+        <p>No. If you can download a file and talk to Muse, you can do this. Download the kit, tell your Muse where it is, and Muse runs the checks and does the technical steps for you. You only approve the two things that are yours: creating your own free Enable Banking account, and approving access in your own Revolut app on your phone. Muse never sees your bank password or private key.</p>
+      </details>
+      <details>
+        <summary>Is this affiliated with Revolut or Enable Banking?</summary>
+        <p>No. It's an independent connector built on Enable Banking's public open-banking platform. Revolut and Enable Banking are their owners' trademarks, and you'll hold your own accounts with both.</p>
+      </details>
+      <details>
+        <summary>Can it move my money or make payments?</summary>
+        <p>No. The consent you grant is read-only account information — balances and transactions. There is no payment capability in the connector or the consent.</p>
+      </details>
+      <details>
+        <summary>Why do I need my own Enable Banking account?</summary>
+        <p>That's how open banking works: access is granted to you, for your accounts, in your name — so you create your own free Enable Banking account during setup, and Muse walks you through it. It's free for your own accounts, and it means your details and bank data never pass through anyone else.</p>
+      </details>
+      <details>
+        <summary>Which countries are covered?</summary>
+        <p>Revolut accounts across the EU and EEA, where Enable Banking provides access under PSD2.</p>
+      </details>
+      <details>
+        <summary>Which accounts does it see?</summary>
+        <p>All the Revolut accounts covered by your consent — typically your Main and Pro accounts, savings vaults, and currency accounts — with balances and transaction history for each.</p>
+      </details>
+      <details>
+        <summary>Does it work with other banks?</summary>
+        <p>Yes, as an expansion. The same Enable Banking feed covers many other European banks, and the Multi-Bank Pack extends the connector to them. Revolut is the proven, headline setup — for other banks we check coverage for your specific bank before you commit.</p>
+      </details>
+      <details>
+        <summary>I'm not technical. Which package should I pick?</summary>
+        <p>Any of them — no coding is needed with any pack, because your Muse does the setup. If you'd like a person alongside you as well, pick Done-For-You: we go through your account setup and phone approval with you in one guided session and don't finish until Muse is showing your live balances.</p>
+      </details>
+      <details>
+        <summary>Does my approval expire?</summary>
+        <p>Bank approvals under open banking are time-limited (typically up to 180 days) and need renewing now and then. Muse walks you through renewing in a couple of minutes, and the Care Plan includes help with it.</p>
+      </details>
+      <details>
+        <summary>What do I need before I start?</summary>
+        <p>A Revolut account held in the EU/EEA, a phone with the Revolut app for approving access, and Muse. Your free Enable Banking account is created during setup — Muse walks you through it. That's it, and no coding experience.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><strong>Revolut Live Feed</strong> — an independent connector for Muse AI users across Europe. Not affiliated with, endorsed by, or connected to Revolut, Enable Banking, or Meta.</p>
+    <p>Coverage: EU &amp; EEA via PSD2 open banking. Each buyer uses their own free Enable Banking account and approves access in their own Revolut app. Read-only account information only; no payment services are provided. Prices in EUR, one-off unless stated, and all include 23% VAT as shown in the breakdowns above.</p>
+    <p>Questions or enquiries: <a href="mailto:info@bankstream.eu">info@bankstream.eu</a></p>
+  </div>
+</footer>
+
+<script>
+  // Feed mock tabs
+  var tabs = document.querySelectorAll('.feed-tab');
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      tabs.forEach(function(t){ t.setAttribute('aria-selected','false'); });
+      tab.setAttribute('aria-selected','true');
+      var view = tab.getAttribute('data-view');
+      document.getElementById('view-accounts').hidden = view !== 'accounts';
+      document.getElementById('view-txns').hidden = view !== 'txns';
+    });
+  });
+
+  // Order builder
+  var PLANS = {
+    diy:   { label: 'DIY Kit',           price: 29,  vat: '€23.58 + €5.42 VAT (23%) = €29.00',  note: 'Black Friday early bird sale', url: 'https://buy.stripe.com/8x228saL95Yi7hlbIGcwg04' },
+    dfy:   { label: 'Done-For-You Setup', price: 199, vat: '€161.79 + €37.21 VAT (23%) = €199.00', note: '', url: 'https://buy.stripe.com/bJeeVecTh86qbxB286cwg03' },
+    multi: { label: 'Multi-Bank Pack',    price: 349, vat: '€283.74 + €65.26 VAT (23%) = €349.00', note: '', url: 'https://buy.stripe.com/8x2aEY06vcmG7hl8wucwg00' }
+  };
+  var CARE_VAT = '€9.76 + €2.24 VAT (23%) = €12.00/month';
+  var current = 'diy';
+  var care = false;
+  var picks = document.querySelectorAll('[data-pick]');
+  var careBtn = document.getElementById('care-toggle');
+  var line = document.getElementById('summary-line');
+  var total = document.getElementById('summary-total');
+  var cta = document.getElementById('summary-cta');
+  var careCta = document.getElementById('care-cta');
+
+  function render(){
+    var p = PLANS[current];
+    var text = p.label + ' — €' + p.price + '.00 due today (inc. VAT)' + (p.note ? ' (' + p.note + ')' : '');
+    var vatText = p.vat;
+    if (care) {
+      text += ' · plus Care Plan €12.00/month (separate subscription checkout)';
+      vatText += ' · Care Plan: ' + CARE_VAT;
+    }
+    line.innerHTML = '';
+    line.appendChild(document.createTextNode(text));
+    var vatSpan = document.createElement('span');
+    vatSpan.className = 'vat-line';
+    vatSpan.textContent = vatText;
+    line.appendChild(vatSpan);
+    total.textContent = '€' + p.price + (care ? ' + €12/mo' : '');
+    cta.setAttribute('href', p.url);
+    careCta.hidden = !care;
+  }
+  picks.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      picks.forEach(function(b){ b.setAttribute('aria-pressed','false'); });
+      btn.setAttribute('aria-pressed','true');
+      current = btn.getAttribute('data-pick');
+      render();
+    });
+  });
+  careBtn.addEventListener('click', function(){
+    care = !care;
+    careBtn.setAttribute('aria-pressed', care ? 'true' : 'false');
+    careBtn.textContent = care ? 'Care Plan added · €12/mo ✓' : 'Add Care Plan · €12/mo';
+    render();
+  });
+  render();
+</script>
+</body>
+</html>
